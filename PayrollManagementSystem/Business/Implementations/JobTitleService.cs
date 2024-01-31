@@ -113,14 +113,7 @@ namespace PayrollManagementSystem.Business.Implementations
                 var (role, userId) = _contextAccessor.HttpContext.GetRoleAndId();
                 var res = await Repository.Update((JobTitle)(reqModel as IMinBase ??
                         throw new InvalidOperationException(
-                        "Conversion to IMinBase Failed. Make sure there's Id and CreatedDate properties.")),
-                        (jobTitle) =>
-                        {
-                        jobTitle.Title = reqModel.Title;
-                        jobTitle.ModifiedDate = DateTime.UtcNow;
-                        jobTitle.ModifiedById = userId;
-                        return jobTitle;
-                         });
+                        "Conversion to IMinBase Failed. Make sure there's Id and CreatedDate properties.")));
 
                 await UnitOfWork.SaveAsync();
                 await UnitOfWork.CommitTransactionAsync(transaction);
@@ -142,14 +135,7 @@ namespace PayrollManagementSystem.Business.Implementations
                 var (role, userId) = _contextAccessor.HttpContext.GetRoleAndId();
                 var res = await Repository.Update((JobTitle)(new JobTitleReq() as IMinBase ??
                     throw new InvalidOperationException(
-                    "Conversion to IMinBase Failed. Make sure there's Id and CreatedDate properties.")),
-                    (jobTitle) =>
-                      {
-                        jobTitle.IsDelete = true;
-                        jobTitle.ModifiedDate = DateTime.UtcNow;
-                        jobTitle.ModifiedById = userId;
-                        return jobTitle;
-                    });
+                    "Conversion to IMinBase Failed. Make sure there's Id and CreatedDate properties.")));
 
                 await UnitOfWork.SaveAsync();
                 await UnitOfWork.CommitTransactionAsync(transaction);

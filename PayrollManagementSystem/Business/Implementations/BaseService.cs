@@ -70,8 +70,8 @@ public class BaseService<TReq, TRes, TRepository, T> : IBaseService<TReq, TRes>
         try
         {
             var res = await Repository.Update((T)(reqModel as IMinBase ??
-                                                    throw new InvalidOperationException(
-                                                        "Conversion to IMinBase Failed. Make sure there's Id and CreatedDate properties.")),
+                                                   throw new InvalidOperationException(
+                                                       "Conversion to IMinBase Failed. Make sure there's Id and CreatedDate properties.")),
                 null);
 
             return res.Ok();

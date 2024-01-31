@@ -32,6 +32,26 @@ builder.Services.AddScoped<IWorkingHourLogService, WorkingHourLogService>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
     
 #endregion
+#region For JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
+    {
+        options.SaveToken = true;
+        options.TokenValidationParameters = builder.Configuration.GetValidationParameters();
+    });
+
+#endregion
+#region For Authorization
+builder.Services.AddAuthorization(options =>
+{
+    var policyBuilder = new AuthorizationPolicyBuilder();
+    var defaultPolicy = policyBuilder
+        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+        .RequireAuthenticatedUser()
+        .Build();
+    options.DefaultPolicy = defaultPolicy;
+});
+#endregion
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -68,28 +88,6 @@ builder.Services.AddIdentity<AppUser, IdentityRole<long>>(opt =>
     .AddEntityFrameworkStores<PayrollDbContext>();
 
 
-#region For JWT Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
-    {
-        options.SaveToken = true;
-        options.TokenValidationParameters = builder.Configuration.GetValidationParameters();
-    });
-
-#endregion
-
-
-#region For Authorization
-builder.Services.AddAuthorization(options =>
-{
-    var policyBuilder = new AuthorizationPolicyBuilder();
-    var defaultPolicy = policyBuilder
-        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-        .RequireAuthenticatedUser()
-        .Build();
-    options.DefaultPolicy = defaultPolicy;
-});
-#endregion
 var app = builder.Build();
 
 app.UseCors(policyBuilder =>

@@ -9,5 +9,6 @@ namespace PayrollManagementSystem.Data.Repositories.Implementations
         public AppUserRepository(PayrollDbContext dbContext, IHttpContextAccessor httpContextAccessor) : base(dbContext, httpContextAccessor)
         {
         }
+
     }
 }

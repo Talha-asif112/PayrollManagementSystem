@@ -109,7 +109,7 @@ namespace PayrollManagementSystem.Business.Implementations
                     SalaryStartDate = reqModel.SalaryStartDate,
                     SalaryEndDate = reqModel.SalaryEndDate,
                     AgreedSalary = reqModel.AgreedSalary,
-                }, null);
+                });
                 await UnitOfWork.Context.SaveChangesAsync();
                 await transaction.CommitAsync();
                 return data.Ok();

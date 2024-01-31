@@ -93,7 +93,7 @@ namespace PayrollManagementSystem.Business.Implementations
                 workHourAdjustment.AdjustmentAmount = reqModel.AdjustmentAmount;
                 workHourAdjustment.AdjustmentPercentage = reqModel.AdjustmentPercentage;
 
-                await Repository.Update(workHourAdjustment, null);
+                await Repository.Update(workHourAdjustment);
                 await UnitOfWork.SaveAsync();
                 var workHourAdjustmentRes = new WorkHourAdjustmentRes
                 {

@@ -110,13 +110,7 @@ namespace PayrollManagementSystem.Business.Implementations
                 var (role, userId) = _contextAccessor.HttpContext.GetRoleAndId();
                 var res = await Repository.Update((Department)(reqModel as IMinBase ??
                  throw new InvalidOperationException( 
-                     "Conversion to IMinBase Failed. Make sure there's Id and CreatedDate properties.")),
-                     (found) =>{
-                        found.DepartmentName = reqModel.DepartmentName;
-                        found.ModifiedDate = DateTime.UtcNow;
-                        found.ModifiedById = userId;
-                        return found;
-                    });
+                     "Conversion to IMinBase Failed. Make sure there's Id and CreatedDate properties.")));
 
                 await UnitOfWork.SaveAsync();
                 await UnitOfWork.CommitTransactionAsync(transaction);
@@ -138,14 +132,7 @@ namespace PayrollManagementSystem.Business.Implementations
                 var (role, userId) = _contextAccessor.HttpContext.GetRoleAndId();
                 var res = await Repository.Update((Department)(new DepartmentReq() as IMinBase ??
                                     throw new InvalidOperationException(
-                                                            "Conversion to IMinBase Failed. Make sure there's Id and CreatedDate properties.")),
-                                                                                (found) =>
-                                                                                {
-                         found.IsDelete = true;
-                         found.ModifiedDate = DateTime.UtcNow;
-                         found.ModifiedById = userId;
-                         return found;
-                     });
+                                                            "Conversion to IMinBase Failed. Make sure there's Id and CreatedDate properties.")));
 
                 await UnitOfWork.SaveAsync();
                 await UnitOfWork.CommitTransactionAsync(transaction);

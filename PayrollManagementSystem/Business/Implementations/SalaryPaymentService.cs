@@ -88,7 +88,7 @@ namespace PayrollManagementSystem.Business.Implementations
                 salaryPayment.NetSalary = salaryPaymentReq.NetSalary;
                 salaryPayment.SalaryPeriod = salaryPaymentReq.SalaryPeriod;
 
-                await Repository.Update(salaryPayment, null);
+                await Repository.Update(salaryPayment);
                 await UnitOfWork.SaveAsync();
                 var salaryPaymentRes = new SalaryPaymentRes
                 {

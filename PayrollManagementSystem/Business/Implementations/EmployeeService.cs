@@ -44,7 +44,9 @@ namespace PayrollManagementSystem.Business.Implementations
                     JobTitleId = reqModel.JobTitleId,
                     Address = reqModel.Address,
                     EmploymentStart = reqModel.EmploymentStart,
-                    DepartmentId = reqModel.DepartmentId 
+                    DepartmentId = reqModel.DepartmentId,
+                    CreatedById = userId,
+                    CreatedDate = DateTime.UtcNow,
                 };
 
                 await Repository.Add(employee);
@@ -152,7 +154,7 @@ namespace PayrollManagementSystem.Business.Implementations
                 employee.Address = reqModel.Address;
                 employee.EmploymentStart = reqModel.EmploymentStart;
 
-                var ss = await Repository.Update(employee, null);
+                var ss = await Repository.Update(employee);
                 await UnitOfWork.SaveAsync();
                 await UnitOfWork.CommitTransactionAsync(transaction);
                 return ss.Ok();

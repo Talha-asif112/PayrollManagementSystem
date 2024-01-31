@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -103,16 +104,14 @@ namespace PayrollManagementSystem.Business.Implementations
                 var userId = _contextAccessor.HttpContext.GetUserId();
                 AppUser user = new AppUser
                 {
-                    Id = userId,
                     Email = reqModel.Email,
                     UserName = reqModel.UserName,
                     FirstName = reqModel.FirstName,
                     LastName = reqModel.LastName,
-                    ContactNo = reqModel.ContactNo != null ? reqModel.ContactNo : null,
+                    ContactNo = reqModel.ContactNo ?? null,
                     Role = reqModel.Role,
                     CreatedDate = DateTime.UtcNow,
                     CreatedById = userId,
-
                 };
 
                 var existinguser = await UnitOfWork.Context.AppUsers.FirstOrDefaultAsync(c => c.Email == reqModel.Email && c.IsDelete != true);
@@ -120,6 +119,13 @@ namespace PayrollManagementSystem.Business.Implementations
                 {
                     return ("User Already exist with the same Email.").BadRequest();
                 }
+
+                if (!Enum.TryParse<UserRole>(reqModel.Role, out var role))
+                {
+                    return "Invalid user role specified.".BadRequest();
+                }
+
+                user.Role = role.ToString();
 
                 var result = await _signInManager.UserManager.CreateAsync(user);
                 if (!result.Succeeded)

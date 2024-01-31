@@ -5,7 +5,6 @@ namespace PayrollManagementSystem.Business.Dtos.Request
     public class EmployeeReq
     {
         public long Id { get; set; }
-
         public long AppUserId { get; set; }
         public DateTime DateOfBirth { get; set; }
         public long DepartmentId { get; set; }

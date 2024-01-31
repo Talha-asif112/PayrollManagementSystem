@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PayrollManagementSystem.Business.Dtos.Request;
 using PayrollManagementSystem.Business.Dtos.Response;
 using PayrollManagementSystem.Business.Interfaces;
+using PayrollManagementSystem.Controllers;
 using PayrollManagementSystem.Data.Repositories.Implementations;
 using PayrollManagementSystem.Data.UnitOfWork;
 using PayrollManagementSystem.Entities;
+using System.Linq;
 using TimeWise.Business.Implementations;
 
 namespace PayrollManagementSystem.Business.Implementations
@@ -17,24 +20,24 @@ namespace PayrollManagementSystem.Business.Implementations
             _contextAccessor = contextAccessor;
         }
 
-        public async Task<IActionResult> CheckIn(WorkingHourLogReq reqModel)
+        public async Task<IActionResult> CheckIn()
         {
             var transaction = await UnitOfWork.BeginTransactionAsync();
 
             try
             {
                 var (role, userId) = _contextAccessor.HttpContext.GetRoleAndId();
+                DateOnly dateOnly = DateOnly.FromDateTime(DateTime.Now);
                 var user = await UnitOfWork.Context.Users.FindAsync(userId);
-              /*  if (user == null)
-                {
-                    return "User not found".BadRequest();
-                }*/
+                var employeeId = await UnitOfWork.Context.Employees.Where(x => x.AppUserId == userId).Select(x => x.Id).FirstOrDefaultAsync();
 
-                var employee = await UnitOfWork.Context.Employees.FindAsync(reqModel.EmployeeId);
-             /*   if (employee == null)
-                {
-                    return "Employee not found".BadRequest();
-                }*/
+                var employee = await UnitOfWork.Context.Employees.FindAsync(employeeId);
+                var sameCheckInDay = await UnitOfWork.Context.WorkingHoursLogs.FirstOrDefaultAsync(
+                    x => x.EmployeeId == employeeId &&
+                    DateOnly.FromDateTime((DateTime)x.Date) == DateOnly.FromDateTime(DateTime.Now));
+
+                if (sameCheckInDay != null)
+                    return "You have already checked in today".BadRequest();
 
                 var workingHourLog = new WorkingHoursLog
                 {
@@ -42,7 +45,9 @@ namespace PayrollManagementSystem.Business.Implementations
                     Date = DateTime.Now,
                     TimeIn = DateTime.Now,
                     TimeOut = null,
-                    WorkDuration = null
+                    WorkDuration = null,
+                    CreatedById = userId,
+                    
                 };
 
                 await Repository.Add(workingHourLog);
@@ -67,34 +72,31 @@ namespace PayrollManagementSystem.Business.Implementations
             }
         }
 
-        public async Task<IActionResult> CheckOut(WorkingHourLogReq reqModel)
+        public async Task<IActionResult> CheckOut()
         {
             var transaction = await UnitOfWork.BeginTransactionAsync();
 
             try
             {
                 var (role, userId) = _contextAccessor.HttpContext.GetRoleAndId();
-                var user = await UnitOfWork.Context.Users.FindAsync(userId);
-               /* if (user == null)
-                {
-                    return "User not found".BadRequest();
-                }*/
-
-                var employee = await UnitOfWork.Context.Employees.FindAsync(reqModel.EmployeeId);
-               /* if (employee == null)
+                var employeeId = await UnitOfWork.Context.Employees.Where(x => x.AppUserId == userId).Select(x => x.Id).FirstOrDefaultAsync();
+                var employee = await UnitOfWork.Context.Employees.FindAsync(employeeId);
+                if (employee == null)
                 {
                     return "Employee not found".BadRequest();
-                }*/
-                var workingHourLog = await Repository.Get(reqModel.EmployeeId);
+                }
+                var workingHourLog = await UnitOfWork.Context.WorkingHoursLogs.Where(x=>x.EmployeeId == employee.Id).FirstOrDefaultAsync();
                 if (workingHourLog == null)
                 {
                     return "Working hour log not found".BadRequest();
+                    
                 }
 
                 workingHourLog.TimeOut = DateTime.Now;
                 workingHourLog.WorkDuration = workingHourLog.TimeOut - workingHourLog.TimeIn;
+                workingHourLog.CreatedById = userId;
 
-                await Repository.Update(workingHourLog, null);
+                await Repository.Update(workingHourLog);
                 await UnitOfWork.SaveAsync();
                 var workingHourLogRes = new WorkingHourLogRes
                 {
@@ -218,7 +220,7 @@ namespace PayrollManagementSystem.Business.Implementations
                 workingHourLog.TimeOut = reqModel.TimeOut;
                 workingHourLog.WorkDuration = reqModel.WorkDuration;
 
-                await Repository.Update(workingHourLog, null);
+                await Repository.Update(workingHourLog);
                 await UnitOfWork.SaveAsync();
                 var workingHourLogRes = new WorkingHourLogRes
                 {

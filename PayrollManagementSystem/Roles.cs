@@ -1,9 +1,5 @@
-﻿namespace PayrollManagementSystem
+﻿public enum UserRole
 {
-    public class Roles
-    {
-        public const string Admin = "Admin";
-        public const string Employee = "Employee";
-        public const string Manager = "Manager";
-    }
+    Admin,//0
+    Employee//1
 }

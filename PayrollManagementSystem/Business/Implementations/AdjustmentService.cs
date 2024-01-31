@@ -26,10 +26,6 @@ namespace PayrollManagementSystem.Business.Implementations
             {
                 var (role, userId) = _contextAccessor.HttpContext.GetRoleAndId();
                 var user = await UnitOfWork.Context.Users.FindAsync(userId);
-                /*if (user == null)
-                {
-                    return "User not found".BadRequest();
-                }*/
 
                 var adjustment = new Adjustment
                 {
@@ -78,7 +74,7 @@ namespace PayrollManagementSystem.Business.Implementations
                 adjustment.IsWorkingHoursAdjustment = reqModel.IsWorkingHoursAdjustment ? true : false;
                 adjustment.IsOtherAdjustment = reqModel.IsOtherAdjustment ? true : false;
 
-                await Repository.Update(adjustment, null);
+                await Repository.Update(adjustment);
                 await UnitOfWork.SaveAsync();
                 var adjustmentRes = new AdjustmentRes
                 {

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using PayrollManagementSystem.Context;
 using PayrollManagementSystem.Entities.Base;
+using Utilities.Exceptions;
 
 
 namespace PayrollManagementSystem.Data.Repositories.Implementations;
@@ -62,9 +63,10 @@ public abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
             .FirstOrDefaultAsync(c => !c.IsDelete && c.Id == model.Id);
         if (found == null)
         {
-            throw new Exception($"{nameof(TEntity)} not found with Id: {model.Id}");
+            throw new EntityNotFoundException($"{nameof(TEntity)} not found with Id: {model.Id}");
         }
 
+        //Execute the Update-EntityMapping Function
         if (func != null)
             found = func(found);
 
